@@ -1,0 +1,36 @@
+import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+# Set up NewsAPI
+newsapi_key = "YOUR_NEWS_API_KEY"
+url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={newsapi_key}"
+
+# Fetch the top 10 news articles
+response = requests.get(url)
+articles = response.json()["articles"][:10]
+
+# Set up email service
+email_address = "YOUR_EMAIL_ADDRESS"
+email_password = "YOUR_EMAIL_PASSWORD"
+recipient = "RECIPIENT_EMAIL_ADDRESS"
+
+# Create the email message
+message = MIMEMultipart()
+message["From"] = email_address
+message["To"] = recipient
+message["Subject"] = "Top 10 News Articles"
+
+# Add the articles to the email message
+for i, article in enumerate(articles):
+    body = f"{i+1}. {article['title']}\n{article['url']}\n\n"
+    message.attach(MIMEText(body, "plain"))
+
+# Send the email
+with smtplib.SMTP("smtp.gmail.com", 587) as smtp:
+    smtp.starttls()
+    smtp.login(email_address, email_password)
+    smtp.sendmail(email_address, recipient, message.as_string())
+
+# CREATED WITH THE HELP OF OPEN-AI CHAT GPT: https://chat.openai.com/chat
